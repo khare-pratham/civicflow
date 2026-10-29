@@ -59,18 +59,18 @@ async function main() {
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.getByRole("heading", { name: "Community service desk" }).waitFor();
-    await page.getByRole("button", { name: "Broken footpath paving" }).waitFor();
+    await page.getByRole("button", { name: "Broken footpath paving", exact: true }).waitFor();
     assert.equal(await page.locator(".issue-title").count(), 4, "dashboard should display four seeded issues");
     console.log("PASS: dashboard loads issue records");
 
     await page.getByRole("textbox", { name: "Search issues" }).fill("pothole");
-    await page.getByRole("button", { name: "Pothole near pedestrian crossing" }).waitFor();
+    await page.getByRole("button", { name: "Pothole near pedestrian crossing", exact: true }).waitFor();
     assert.equal(await page.locator(".issue-title").count(), 1, "search should narrow the queue to one issue");
     console.log("PASS: search filters issue queue");
 
     await page.getByRole("button", { name: "Clear filters" }).click();
     await page.getByLabel("Filter by category").selectOption("Lighting");
-    await page.getByRole("button", { name: "Streetlight out near community centre" }).waitFor();
+    await page.getByRole("button", { name: "Streetlight out near community centre", exact: true }).waitFor();
     assert.equal(await page.locator(".issue-title").count(), 1, "category filter should narrow the queue");
     console.log("PASS: category filter works");
 
@@ -82,14 +82,14 @@ async function main() {
     await page.getByLabel("Priority").selectOption("Normal");
     await page.getByLabel("Location").fill("Automated test location");
     await page.getByRole("button", { name: "Submit issue" }).click();
-    await page.getByRole("button", { name: "Playwright test issue" }).waitFor();
+    await page.getByRole("button", { name: "Playwright test issue", exact: true }).waitFor();
     console.log("PASS: user can create an issue");
 
     await page.getByRole("button", { name: "View Broken footpath paving" }).click();
     await page.getByLabel("Update status").selectOption("Under review");
     await page.getByText("Issue #1 moved to Under review.").waitFor();
     await page.reload({ waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Broken footpath paving" }).click();
+    await page.getByRole("button", { name: "Broken footpath paving", exact: true }).click();
     await page.getByLabel("Update status").waitFor();
     assert.equal(await page.getByLabel("Update status").inputValue(), "Under review", "status should persist after page reload");
     console.log("PASS: issue status updates and persists after refresh");
