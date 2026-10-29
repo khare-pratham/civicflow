@@ -102,6 +102,8 @@ async function main() {
     await errorPage.route("**/health", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Test API unavailable" }) }));
     await errorPage.goto(baseUrl, { waitUntil: "networkidle" });
     await errorPage.getByRole("alert").getByText("Test API unavailable").waitFor();
+    await errorPage.getByRole("status").getByText("Offline").waitFor();
+    console.log("PASS: API health indicator reports offline status");
     console.log("PASS: API errors are shown to the user");
     await errorPage.close();
 
