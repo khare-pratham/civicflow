@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, text
 from sqlalchemy.orm import Session
 from .database import Base, engine, get_db
 from .models import Issue, utc_now
@@ -43,6 +43,23 @@ app.add_middleware(
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "civicflow-api"}
+
+
+@app.get("/ready")
+def readiness():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service temporarily unavailable.",
+        )
+    return {
+        "status": "ready",
+        "service": "civicflow-api",
+        "checks": {"database": "ok"},
+    }
 
 
 @app.get("/api/issues", response_model=list[IssueRead])
