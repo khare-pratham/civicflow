@@ -113,7 +113,7 @@ function App() {
         <button className="nav-item nav-active" type="button"><Activity size={17} /> Service overview <span className="nav-count">{issues.length}</span></button>
         <button className="nav-item" type="button" onClick={() => setShowForm(true)}><Plus size={17} /> Report an issue</button>
         <div className="sidebar-bottom">
-          <div className="sidebar-status"><span className="online-dot" /><span>API connection</span><strong>Local</strong></div>
+          <div className="sidebar-status"><span className="online-dot" /><span>API connection</span><strong>Live API</strong></div>
           <div className="profile-chip"><div className="profile-avatar">CF</div><div><strong>Community Services</strong><span>Demo workspace</span></div><ChevronDown size={15} /></div>
         </div>
       </aside>
