@@ -22,7 +22,17 @@ CivicFlow is a portfolio MVP with demonstration data. Please do not submit real 
 
 ## Screenshots
 
-The live demo is the best way to explore the current interface. Screenshots can be added here as the UI evolves.
+### Live application
+
+![CivicFlow community service desk dashboard](dashboard.png)
+
+*The dashboard brings issue prioritisation, service status, search and filtering into one operational view.*
+
+### Continuous integration
+
+![CivicFlow CI passing all checks](ci-success.png)
+
+*GitHub Actions validates the backend API, frontend production build and frontend end-to-end browser tests on each push to the main branch.*
 
 ## Technology stack
 
