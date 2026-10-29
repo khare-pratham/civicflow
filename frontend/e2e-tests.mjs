@@ -78,7 +78,7 @@ async function main() {
     await page.getByRole("button", { name: "Report an issue" }).first().click();
     await page.getByLabel("Issue title").fill("Playwright test issue");
     await page.getByLabel("Description").fill("This issue was created by the automated browser test.");
-    await page.getByLabel("Filter by category").selectOption("Parks");
+    await page.getByRole("dialog").locator("form").getByLabel("Category").selectOption("Parks");
     await page.getByRole("dialog").locator("form").getByLabel("Priority").selectOption("Normal");
     await page.getByLabel("Location").fill("Automated test location");
     await page.getByRole("button", { name: "Submit issue" }).click();
