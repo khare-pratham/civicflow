@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, CircleAlert, Clock3, Filter, MapPin, Plus, Search, ShieldCheck, Siren, X } from "lucide-react";
-import { checkApiHealth, createIssue, getIssues, updateIssueStatus } from "./api";
+import { checkApiReadiness, createIssue, getIssues, updateIssueStatus } from "./api";
 import type { Category, Issue, IssueCreate, IssueStatus, Priority } from "./types";
 
 const categories: Category[] = ["Roads", "Lighting", "Waste", "Parks", "Footpaths", "Other"];
@@ -68,8 +68,8 @@ function App() {
     let active = true;
     const checkHealth = async () => {
       try {
-        const health = await checkApiHealth();
-        if (active) setApiStatus(health.status === "ok" ? "online" : "offline");
+        const readiness = await checkApiReadiness();
+        if (active) setApiStatus(readiness.status === "ready" && readiness.checks.database === "ok" ? "online" : "offline");
       } catch {
         if (active) setApiStatus("offline");
       }
