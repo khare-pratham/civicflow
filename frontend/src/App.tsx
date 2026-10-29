@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Activity, ArrowDownRight, ArrowUpRight, Check, ChevronDown, CircleAlert, Clock3, Filter, MapPin, Plus, Search, ShieldCheck, Siren, X } from "lucide-react";
-import { createIssue, getIssues, updateIssueStatus } from "./api";
+import { checkApiHealth, createIssue, getIssues, updateIssueStatus } from "./api";
 import type { Category, Issue, IssueCreate, IssueStatus, Priority } from "./types";
 
 const categories: Category[] = ["Roads", "Lighting", "Waste", "Parks", "Footpaths", "Other"];
@@ -32,6 +32,7 @@ function statusClass(status: IssueStatus) {
 function App() {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [apiStatus, setApiStatus] = useState<"connecting" | "online" | "offline">("connecting");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
@@ -62,6 +63,24 @@ function App() {
   }, [statusFilter, categoryFilter, query]);
 
   useEffect(() => { void loadIssues(); }, [loadIssues]);
+
+  useEffect(() => {
+    let active = true;
+    const checkHealth = async () => {
+      try {
+        const health = await checkApiHealth();
+        if (active) setApiStatus(health.status === "ok" ? "online" : "offline");
+      } catch {
+        if (active) setApiStatus("offline");
+      }
+    };
+    void checkHealth();
+    const intervalId = window.setInterval(() => void checkHealth(), 30000);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   const stats = useMemo(() => ({
     open: issues.filter((i) => !["Resolved", "Closed"].includes(i.status)).length,
@@ -113,7 +132,7 @@ function App() {
         <button className="nav-item nav-active" type="button"><Activity size={17} /> Service overview <span className="nav-count">{issues.length}</span></button>
         <button className="nav-item" type="button" onClick={() => setShowForm(true)}><Plus size={17} /> Report an issue</button>
         <div className="sidebar-bottom">
-          <div className="sidebar-status"><span className="online-dot" /><span>API connection</span><strong>Live API</strong></div>
+          <div className="sidebar-status"><span className={`online-dot ${apiStatus === "offline" ? "api-dot-offline" : apiStatus === "connecting" ? "api-dot-connecting" : ""}`} /><span>API connection</span><strong className={`api-status-label api-status-${apiStatus}`} role="status">{apiStatus === "online" ? "Live API" : apiStatus === "connecting" ? "Connecting…" : "Offline"}</strong></div>
           <div className="profile-chip"><div className="profile-avatar">CF</div><div><strong>Community Services</strong><span>Demo workspace</span></div><ChevronDown size={15} /></div>
         </div>
       </aside>
