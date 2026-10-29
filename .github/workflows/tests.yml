@@ -43,3 +43,34 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+
+  frontend-e2e:
+    name: Frontend end-to-end tests
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Start frontend preview
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/civicflow-vite-preview.log 2>&1 &
+          echo $! > /tmp/civicflow-vite-preview.pid
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/civicflow-vite-preview.log
+          exit 1
+      - run: node e2e-tests.mjs
