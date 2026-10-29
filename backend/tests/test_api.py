@@ -28,6 +28,26 @@ def test_health_endpoint():
         assert response.json()["status"] == "ok"
 
 
+
+def test_readiness_endpoint_checks_database():
+    with TestClient(app) as client:
+        response = client.get("/ready")
+        assert response.status_code == 200
+        assert response.json()["status"] == "ready"
+        assert response.json()["checks"]["database"] == "ok"
+
+
+def test_readiness_returns_503_when_database_is_unavailable(monkeypatch):
+    with TestClient(app) as client:
+        def unavailable_connection():
+            raise RuntimeError("database connection failed")
+
+        monkeypatch.setattr(database.engine, "connect", unavailable_connection)
+        response = client.get("/ready")
+        assert response.status_code == 503
+        assert response.json()["detail"] == "Service temporarily unavailable."
+
+
 def test_create_and_fetch_issue():
     with TestClient(app) as client:
         payload = {
