@@ -92,6 +92,10 @@ export function updateIssueStatus(
   });
 }
 
-export function checkApiHealth() {
-  return request<{ status: string; service: string }>("/health");
+export function checkApiReadiness() {
+  return request<{
+    status: string;
+    service: string;
+    checks: { database: string };
+  }>("/ready");
 }
