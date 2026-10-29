@@ -55,10 +55,13 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   await page.route("**/api/issues**", createApiMock());
+  await page.route("**/health", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ status: "ok", service: "civicflow-api" }) }));
 
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.getByRole("heading", { name: "Community service desk" }).waitFor();
+    await page.getByRole("status").getByText("Live API").waitFor();
+    console.log("PASS: API health indicator reports online status");
     await page.getByRole("button", { name: "Broken footpath paving", exact: true }).waitFor();
     assert.equal(await page.locator(".issue-title").count(), 4, "dashboard should display four seeded issues");
     console.log("PASS: dashboard loads issue records");
@@ -96,6 +99,7 @@ async function main() {
 
     const errorPage = await browser.newPage();
     await errorPage.route("**/api/issues**", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Test API unavailable" }) }));
+    await errorPage.route("**/health", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Test API unavailable" }) }));
     await errorPage.goto(baseUrl, { waitUntil: "networkidle" });
     await errorPage.getByRole("alert").getByText("Test API unavailable").waitFor();
     console.log("PASS: API errors are shown to the user");
