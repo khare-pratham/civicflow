@@ -91,3 +91,7 @@ export function updateIssueStatus(
     }),
   });
 }
+
+export function checkApiHealth() {
+  return request<{ status: string; service: string }>("/health");
+}
